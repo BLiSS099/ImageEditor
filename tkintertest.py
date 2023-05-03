@@ -6,7 +6,7 @@ from wand.image import Image as wand_img
 import os, io
 
 window = tk.Tk()
-window.geometry("1280x720")
+#window.geometry("1280x720")
 class canvasImage:
     def __init__(self):
         self.image = None   #Image to be manipulated (PIL.Image)
@@ -56,26 +56,41 @@ def save_image():
         canvasImage.image.save(path.name)
         
 
-window.grid_columnconfigure(0, weight=1)
-window.grid_rowconfigure(0, weight=1)
+""" window.columnconfigure(0, weight=1)
+window.rowconfigure(0, weight=1) """
+""" window.grid_columnconfigure(1, weight=1)
+window.grid_columnconfigure(0, weight=0.5)
+window.grid_columnconfigure(2, weight=0.5)
+window.grid_rowconfigure(0, weight=1) """
+
+window.grid_columnconfigure([5,8], weight=1) #Resize for main_canvas
+#window.grid_columnconfigure([0,4], weight=1) #Resize for side_frame_left
+#window.grid_columnconfigure([9,12], weight=1) #Resize for side_frame_right
+window.rowconfigure(0, weight=1)
 
 #Tips: Use sticky on grid for resizing
 
-main_canvas = tk.Canvas(master=window, height=250, width=500, relief="ridge", borderwidth=4)
-main_canvas.grid(row=0, column=0, rowspan=3, columnspan=3, sticky="nesw")
+main_canvas = tk.Canvas(master=window, height=250, width=850, relief="ridge", borderwidth=4)
+main_canvas.grid(row=0, column=5, rowspan=4, columnspan=4, sticky="NESW") 
 
-bot_nav_bar = tk.Frame(window, relief="raised", borderwidth=2, width=500, height=50)
-add_image_btn = tk.Button(bot_nav_bar, text="add image", relief="raised", padx=10, command=add_image)
+top_left_frame = tk.Frame(master=window, height=250, width=200, relief="ridge", borderwidth=2)
+top_left_frame.grid(row=0, column=0, rowspan=2, columnspan=4, sticky="NSW", padx=1, pady=1) 
+top_left_frame.grid_propagate(0)
+add_image_btn = tk.Button(top_left_frame, text="add image", relief="raised", padx=10, command=add_image)
 add_image_btn.grid(row=0, column=0)
-save_image_btn = tk.Button(bot_nav_bar, text="save image", relief="raised", padx=10, command=save_image)
+save_image_btn = tk.Button(top_left_frame, text="save image", relief="raised", padx=10, command=save_image)
 save_image_btn.grid(row=0, column=1)
-bot_nav_bar.grid(row=4, column=0, rowspan=2, columnspan=6, sticky="esw")
-bot_nav_bar.grid_propagate(0)
 
-side_frame = tk.Frame(window, width=200, height=250, relief="ridge", borderwidth=2)
-side_frame.grid(row=0, column=4, rowspan=3 , columnspan=3, sticky="nes")
-side_frame.grid_propagate(0)
-side_frame_addfilter = tk.Button(side_frame, text="Add filter", relief="raised", padx=10, command=add_filter)
+top_right_frame = tk.Frame(master=window, height=250, width=200, relief="ridge", borderwidth=2)
+top_right_frame.grid(row=0, column=9, rowspan=2, columnspan=4, sticky="NES", padx=1, pady=2)
+top_right_frame.grid_propagate(0)
+side_frame_addfilter = tk.Button(top_right_frame, text="Add filter", relief="raised", padx=10, command=add_filter)
 side_frame_addfilter.grid(row=2, column=1, pady=10, padx=10)
+
+bot_left_frame = tk.Frame(master=window, height=250, width=200, relief="ridge", borderwidth=2)
+bot_left_frame.grid(row=2,column=0, rowspan=2, columnspan=4, sticky="NSW", padx=1, pady=1)
+
+bot_right_frame = tk.Frame(master=window, height=250, width=200, relief="ridge", borderwidth=2)
+bot_right_frame.grid(row=2, column=9, rowspan=2, columnspan=4, sticky="NES", padx=1, pady=1)
 
 window.mainloop()
