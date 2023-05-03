@@ -1,49 +1,47 @@
 import tkinter as tk
 from tkinter import filedialog, messagebox
 from PIL import ImageTk, Image
-from wand.image import Image as im
+from wand.image import Image as wand_img
 
-import os
-import io
-
-import numpy as np
+import os, io
 
 window = tk.Tk()
-
-canvas_image = None
-
-
-def add_filter():
-    """Challenge1: Due to incompatible variable format of Wand.image and ImageTk.PhotoImage, 
-    it is necessary to convert and pass data in bytes format to each package"""
-    #Convert PIL image to byteIO (blob/bytes)
-    print(canvas_image)
-    buf = io.BytesIO()
-    canvas_image.save(buf, format="PNG")
-    contents = buf.getvalue()
-
-    with im(blob=contents) as test:
-        test.blur(radius=0, sigma=3)
-        test.format = 'png'
-
-        #Convert wand image to blob(bytes) for ImageTk to read
-        blob = test.make_blob()
-        pil_image = Image.open(io.BytesIO(blob))
-        canvas_image = ImageTk.PhotoImage(pil_image)
-
-        main_canvas.image = canvas_image
-        main_canvas.create_image(0, 0, anchor="nw", image=main_canvas.image)
-
+window.geometry("1280x720")
+class canvasImage:
+    def __init__(self):
+        self.image = None   #Image to be manipulated (PIL.Image)
+        self.image_tk = None #Image to be displayed (PIL.ImageTk.PhotoImage)
 
 def add_image():
     path = filedialog.askopenfilename(
         initialdir=os.getcwd(),
     )
-    canvas_image = Image.open(path)
+    canvasImage.image = Image.open(path)
+    canvasImage.image_tk = ImageTk.PhotoImage(canvasImage.image)
+    
     main_canvas.config(width=10, height=10)
-    main_canvas.image = ImageTk.PhotoImage(canvas_image)
-    print(canvas_image)
+    main_canvas.image = ImageTk.PhotoImage(canvasImage.image)
     main_canvas.create_image(0, 0, anchor="nw", image=main_canvas.image)
+
+def add_filter():
+    """Challenge1: Due to incompatible variable format of Wand.image and ImageTk.PhotoImage, 
+    it is necessary to convert and pass data in bytes format to each package"""
+    #Convert PIL image to byteIO (blob/bytes)
+    buf = io.BytesIO()
+    canvasImage.image.save(buf, format="PNG")
+    contents = buf.getvalue()
+
+    with wand_img(blob=contents) as img:
+        img.blur(radius=0, sigma=3)
+        img.format = 'png'
+
+        #Convert wand image to blob(bytes) for ImageTk/Image to read
+        blob = img.make_blob()
+        canvasImage.image = Image.open(io.BytesIO(blob))
+        canvasImage.image_tk = ImageTk.PhotoImage(canvasImage.image)
+
+        main_canvas.image = ImageTk.PhotoImage(canvasImage.image)
+        main_canvas.create_image(0, 0, anchor="nw", image=main_canvas.image)
 
 def save_image():
     #save image
@@ -54,21 +52,9 @@ def save_image():
         filetypes=[("Image", "*.png")]
     )
     if path:
+        os.chdir(os.path.dirname(path.name))
+        canvasImage.image.save(path.name)
         
-
-""" def add_image():
-    global file_path
-    file_path = filedialog.askopenfilename(
-        initialdir=os.getcwd()
-        )
-    image = Image.open(file_path)
-    width, height = int(image.width / 2), int(image.height / 2)
-    image = image.resize((width, height))
-    main_canvas.config(width=image.width, height=image.height)
-    image = ImageTk.PhotoImage(image)
-    main_canvas.image = image
-    main_canvas.create_image(0, 0, image=image, anchor="nw") """
-
 
 window.grid_columnconfigure(0, weight=1)
 window.grid_rowconfigure(0, weight=1)
@@ -91,6 +77,5 @@ side_frame.grid(row=0, column=4, rowspan=3 , columnspan=3, sticky="nes")
 side_frame.grid_propagate(0)
 side_frame_addfilter = tk.Button(side_frame, text="Add filter", relief="raised", padx=10, command=add_filter)
 side_frame_addfilter.grid(row=2, column=1, pady=10, padx=10)
-
 
 window.mainloop()
