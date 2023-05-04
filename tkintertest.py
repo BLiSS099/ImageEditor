@@ -19,10 +19,10 @@ def add_image():
     )
     canvasImage.image = Image.open(path)
     canvasImage.preview_image = Image.open(path)
-    canvasImage.image_tk = ImageTk.PhotoImage(canvasImage.image)
+    canvasImage.image_tk = ImageTk.PhotoImage(canvasImage.preview_image)
     
-    main_canvas.config(width=10, height=10)
-    main_canvas.image = ImageTk.PhotoImage(canvasImage.image)
+    #main_canvas.config(width=10, height=10)
+    main_canvas.image = canvasImage.image_tk
     main_canvas.create_image(0, 0, anchor="nw", image=main_canvas.image)
 
 def add_filter():
@@ -30,7 +30,7 @@ def add_filter():
     it is necessary to convert and pass data in bytes format when converting between package"""
     #Convert PIL image to byteIO (blob/bytes)
     buf = io.BytesIO()
-    canvasImage.image.save(buf, format="PNG")
+    canvasImage.preview_image.save(buf, format="PNG")
     contents = buf.getvalue()
 
     with wand_img(blob=contents) as img:
@@ -39,11 +39,23 @@ def add_filter():
 
         #Convert wand image to blob(bytes) for ImageTk/Image to read
         blob = img.make_blob()
-        canvasImage.image = Image.open(io.BytesIO(blob))
-        canvasImage.image_tk = ImageTk.PhotoImage(canvasImage.image)
+        canvasImage.preview_image = Image.open(io.BytesIO(blob))
+        canvasImage.image_tk = ImageTk.PhotoImage(canvasImage.preview_image)
 
-        main_canvas.image = ImageTk.PhotoImage(canvasImage.image)
+        main_canvas.image = canvasImage.image_tk
         main_canvas.create_image(0, 0, anchor="nw", image=main_canvas.image)
+
+def apply_filter():
+    #Apply filter to original image
+    canvasImage.image = canvasImage.preview_image
+    print("Filter applied!")
+
+def undo_filter():
+    #Undo
+    main_canvas.image = ImageTk.PhotoImage(canvasImage.image)
+    main_canvas.create_image(0, 0, anchor="nw", image=main_canvas.image)
+    print("Filter undo-ed!")
+
 
 def save_image():
     #save image
@@ -102,6 +114,10 @@ bot_right_frame.grid_propagate(0)
 slider = tk.Scale(master=bot_right_frame, from_=0.0, to=5.0, resolution=0.1, orient="horizontal", width=10, length=150, label="Slider", variable=var)
 slider.set(2.5)
 slider.grid(row=0, column=0, padx=15)
+app_filter = tk.Button(master=bot_right_frame, text="Apply filter", relief="raised", command=apply_filter)
+app_filter.grid(row=1, column=0)
+undo_btn = tk.Button(master=bot_right_frame, text="Undo", relief="raised", command=undo_filter)
+undo_btn.grid(row=2, column=0)
 
 
 window.mainloop()
