@@ -10,7 +10,6 @@ window = tk.Tk()
 class canvasImage:
     def __init__(self):
         self.image = None   #Image to be manipulated (PIL.Image)
-        #self.image_tk = None #Image to be displayed (PIL.ImageTk.PhotoImage)
         self.preview_image = None #Image for previewing filter
 
 def add_image():
@@ -19,7 +18,6 @@ def add_image():
     )
     canvasImage.image = Image.open(path)
     canvasImage.preview_image = Image.open(path)
-    #canvasImage.image_tk = ImageTk.PhotoImage(canvasImage.preview_image)
     
     #main_canvas.config(width=10, height=10)
     main_canvas.image = ImageTk.PhotoImage(canvasImage.preview_image)
@@ -37,10 +35,8 @@ def add_filter():
         img.blur(radius=3, sigma=3)
         img.format = 'png'
 
-        #Convert wand image to blob(bytes) for ImageTk/Image to read
         blob = img.make_blob()
         canvasImage.preview_image = Image.open(io.BytesIO(blob)) 
-        #canvasImage.image_tk = ImageTk.PhotoImage(canvasImage.preview_image)
 
         main_canvas.image = ImageTk.PhotoImage(canvasImage.preview_image)
         main_canvas.create_image(0, 0, anchor="nw", image=main_canvas.image)
