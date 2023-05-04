@@ -10,7 +10,7 @@ window = tk.Tk()
 class canvasImage:
     def __init__(self):
         self.image = None   #Image to be manipulated (PIL.Image)
-        self.image_tk = None #Image to be displayed (PIL.ImageTk.PhotoImage)
+        #self.image_tk = None #Image to be displayed (PIL.ImageTk.PhotoImage)
         self.preview_image = None #Image for previewing filter
 
 def add_image():
@@ -19,10 +19,10 @@ def add_image():
     )
     canvasImage.image = Image.open(path)
     canvasImage.preview_image = Image.open(path)
-    canvasImage.image_tk = ImageTk.PhotoImage(canvasImage.preview_image)
+    #canvasImage.image_tk = ImageTk.PhotoImage(canvasImage.preview_image)
     
     #main_canvas.config(width=10, height=10)
-    main_canvas.image = canvasImage.image_tk
+    main_canvas.image = ImageTk.PhotoImage(canvasImage.preview_image)
     main_canvas.create_image(0, 0, anchor="nw", image=main_canvas.image)
 
 def add_filter():
@@ -30,7 +30,7 @@ def add_filter():
     it is necessary to convert and pass data in bytes format when converting between package"""
     #Convert PIL image to byteIO (blob/bytes)
     buf = io.BytesIO()
-    canvasImage.preview_image.save(buf, format="PNG")
+    canvasImage.image.save(buf, format="PNG") #Convert original image to blob for preview_image
     contents = buf.getvalue()
 
     with wand_img(blob=contents) as img:
@@ -39,10 +39,10 @@ def add_filter():
 
         #Convert wand image to blob(bytes) for ImageTk/Image to read
         blob = img.make_blob()
-        canvasImage.preview_image = Image.open(io.BytesIO(blob))
-        canvasImage.image_tk = ImageTk.PhotoImage(canvasImage.preview_image)
+        canvasImage.preview_image = Image.open(io.BytesIO(blob)) 
+        #canvasImage.image_tk = ImageTk.PhotoImage(canvasImage.preview_image)
 
-        main_canvas.image = canvasImage.image_tk
+        main_canvas.image = ImageTk.PhotoImage(canvasImage.preview_image)
         main_canvas.create_image(0, 0, anchor="nw", image=main_canvas.image)
 
 def apply_filter():
@@ -51,7 +51,7 @@ def apply_filter():
     print("Filter applied!")
 
 def undo_filter():
-    #Undo
+    #Revert filter and set main_canvas.image to original (canvasImage.image)
     main_canvas.image = ImageTk.PhotoImage(canvasImage.image)
     main_canvas.create_image(0, 0, anchor="nw", image=main_canvas.image)
     print("Filter undo-ed!")
