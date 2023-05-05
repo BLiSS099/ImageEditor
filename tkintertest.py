@@ -20,8 +20,14 @@ def add_image():
     canvasImage.image = Image.open(path)
     canvasImage.preview_image = Image.open(path)
     
-    #main_canvas.config(width=10, height=10)
+    width, height = main_canvas.winfo_width(), main_canvas.winfo_height()
     main_canvas.image = ImageTk.PhotoImage(canvasImage.preview_image)
+    main_canvas.create_image(width/2, height/2, anchor="center", image=main_canvas.image)
+
+def canvas_resize(e):
+    global resized_image
+    resized_image = canvasImage.preview_image.resize((e.width, e.height), resample=Image.LANCZOS)
+    main_canvas.image = ImageTk.PhotoImage(resized_image)
     main_canvas.create_image(0, 0, anchor="nw", image=main_canvas.image)
 
 def add_filter():
@@ -74,7 +80,7 @@ window.rowconfigure([0,2], weight=1)
 
 #Tips: Use sticky on grid for resizing
 
-main_canvas = tk.Canvas(master=window, height=250, width=850, relief="ridge", borderwidth=4)
+main_canvas = tk.Canvas(master=window, height=250, width=850, relief="groove", borderwidth=2)
 main_canvas.grid(row=0, column=5, rowspan=4, columnspan=4, sticky="NESW") 
 
 top_left_frame = tk.Frame(master=window, height=250, width=230, relief="ridge", borderwidth=2)
@@ -106,5 +112,6 @@ apply_filter_btn.grid(row=1, column=0)
 undo_btn = tk.Button(master=bot_right_frame, text="Undo", relief="raised", command=undo_filter)
 undo_btn.grid(row=2, column=0)
 
+window.bind("<Configure>", canvas_resize)
 
 window.mainloop()
