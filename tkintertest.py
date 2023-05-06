@@ -21,14 +21,12 @@ def add_image():
     canvasImage.preview_image = Image.open(path)
     
     width, height = main_canvas.winfo_width(), main_canvas.winfo_height()
-    main_canvas.image = ImageTk.PhotoImage(canvasImage.preview_image)
+    #main_canvas.image = ImageTk.PhotoImage(canvasImage.preview_image)
+    main_canvas.image = ImageTk.PhotoImage(canvasImage.preview_image.resize(
+        (int(canvasImage.preview_image.width/1.5), int(canvasImage.preview_image.height/1.5)), 
+         resample=Image.LANCZOS
+        ))
     main_canvas.create_image(width/2, height/2, anchor="center", image=main_canvas.image)
-
-def canvas_resize(e):
-    global resized_image
-    resized_image = canvasImage.preview_image.resize((e.width, e.height), resample=Image.LANCZOS)
-    main_canvas.image = ImageTk.PhotoImage(resized_image)
-    main_canvas.create_image(0, 0, anchor="nw", image=main_canvas.image)
 
 def add_filter():
     """Challenge1: Due to incompatible variable format of Wand.image and ImageTk.PhotoImage, 
@@ -45,9 +43,11 @@ def add_filter():
 
         blob = img.make_blob()
         canvasImage.preview_image = Image.open(io.BytesIO(blob)) 
-
-        main_canvas.image = ImageTk.PhotoImage(canvasImage.preview_image)
-        main_canvas.create_image(0, 0, anchor="nw", image=main_canvas.image)
+        main_canvas.image = ImageTk.PhotoImage(canvasImage.preview_image.resize(
+            (int(canvasImage.preview_image.width/1.5), int(canvasImage.preview_image.height/1.5)), 
+            resample=Image.LANCZOS
+            ))
+        main_canvas.create_image(width/2, height/2, anchor="center", image=main_canvas.image)
     apply_filter_btn["state"] = "normal"
 
 def apply_filter():
@@ -57,8 +57,11 @@ def apply_filter():
 
 def undo_filter():
     #Revert filter and set main_canvas.image to original (canvasImage.image)
-    main_canvas.image = ImageTk.PhotoImage(canvasImage.image)
-    main_canvas.create_image(0, 0, anchor="nw", image=main_canvas.image)
+    main_canvas.image = ImageTk.PhotoImage(canvasImage.image.resize(
+            (int(canvasImage.preview_image.width/1.5), int(canvasImage.preview_image.height/1.5)), 
+            resample=Image.LANCZOS
+            ))
+    main_canvas.create_image(width/2, height/2, anchor="center", image=main_canvas.image)
     apply_filter_btn["state"] = "disabled"
     print("Filter undo-ed!")
 
@@ -80,7 +83,7 @@ window.rowconfigure([0,2], weight=1)
 
 #Tips: Use sticky on grid for resizing
 
-main_canvas = tk.Canvas(master=window, height=250, width=850, relief="groove", borderwidth=2)
+main_canvas = tk.Canvas(master=window, height=250, width=850, relief="ridge", borderwidth=2)
 main_canvas.grid(row=0, column=5, rowspan=4, columnspan=4, sticky="NESW") 
 
 top_left_frame = tk.Frame(master=window, height=250, width=230, relief="ridge", borderwidth=2)
@@ -100,7 +103,6 @@ side_frame_addfilter.grid(row=2, column=1, pady=10, padx=10)
 bot_left_frame = tk.Frame(master=window, height=250, width=230, relief="ridge", borderwidth=2)
 bot_left_frame.grid(row=2,column=0, rowspan=2, columnspan=4, sticky="NSW", padx=1, pady=1)
 
-
 bot_right_frame = tk.Frame(master=window, height=250, width=230, relief="ridge", borderwidth=2)
 bot_right_frame.grid(row=2, column=9, rowspan=2, columnspan=4, sticky="NES", padx=1, pady=1)
 bot_right_frame.grid_propagate(0)
@@ -112,6 +114,7 @@ apply_filter_btn.grid(row=1, column=0)
 undo_btn = tk.Button(master=bot_right_frame, text="Undo", relief="raised", command=undo_filter)
 undo_btn.grid(row=2, column=0)
 
-window.bind("<Configure>", canvas_resize)
+window.update() #Tkinter root needs to be updated for getting width and height value of main_canvas
+width, height = main_canvas.winfo_width(), main_canvas.winfo_height() 
 
 window.mainloop()
