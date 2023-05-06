@@ -1,9 +1,13 @@
+import os
+import io
+
 import tkinter as tk
 from tkinter import filedialog, messagebox
+
 from PIL import ImageTk, Image
 from wand.image import Image as wand_img
 
-import os, io
+
 
 window = tk.Tk()
 window.geometry("1280x720")
