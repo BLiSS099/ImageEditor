@@ -14,10 +14,10 @@ class canvasImage:
         self.preview_image = None #Image for previewing filter 
 
 def resizing(e):
-    global width,height
+    global canvas_width, canvas_height
     window.update() #Tkinter root needs to be updated for getting width and height value of main_canvas
-    width, height = e.width, e.height
-    print(f"Width: {width} Height: {height}")
+    canvas_width, canvas_height = e.width, e.height
+    print(f"Width: {canvas_width} Height: {canvas_height}")
 
 def add_image():
     path = filedialog.askopenfilename(
@@ -32,7 +32,7 @@ def add_image():
         (int(canvasImage.preview_image.width/1.5), int(canvasImage.preview_image.height/1.5)), 
          resample=Image.LANCZOS
         ))
-    main_canvas.create_image(width/2, height/2, anchor="center", image=main_canvas.image)
+    main_canvas.create_image(canvas_width/2, canvas_height/2, anchor="center", image=main_canvas.image)
 
 def add_filter():
     """Challenge1: Due to incompatible variable format of Wand.image and ImageTk.PhotoImage, 
@@ -53,7 +53,7 @@ def add_filter():
             (int(canvasImage.preview_image.width/1.5), int(canvasImage.preview_image.height/1.5)), 
             resample=Image.LANCZOS
             ))
-        main_canvas.create_image(width/2, height/2, anchor="center", image=main_canvas.image)
+        main_canvas.create_image(canvas_width/2, canvas_height/2, anchor="center", image=main_canvas.image)
     apply_filter_btn["state"] = "normal"
 
 def apply_filter():
@@ -67,7 +67,7 @@ def undo_filter():
             (int(canvasImage.preview_image.width/1.5), int(canvasImage.preview_image.height/1.5)), 
             resample=Image.LANCZOS
             ))
-    main_canvas.create_image(width/2, height/2, anchor="center", image=main_canvas.image)
+    main_canvas.create_image(canvas_width/2, canvas_height/2, anchor="center", image=main_canvas.image)
     apply_filter_btn["state"] = "disabled"
     print("Filter undo-ed!")
 
