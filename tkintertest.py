@@ -13,6 +13,12 @@ class canvasImage:
         self.image = None   #Image to be manipulated (PIL.Image)
         self.preview_image = None #Image for previewing filter 
 
+def resizing(e):
+    global width,height
+    window.update() #Tkinter root needs to be updated for getting width and height value of main_canvas
+    width, height = e.width, e.height
+    print(f"Width: {width} Height: {height}")
+
 def add_image():
     path = filedialog.askopenfilename(
        initialdir=os.getcwd(),
@@ -114,7 +120,6 @@ apply_filter_btn.grid(row=1, column=0)
 undo_btn = tk.Button(master=bot_right_frame, text="Undo", relief="raised", command=undo_filter)
 undo_btn.grid(row=2, column=0)
 
-window.update() #Tkinter root needs to be updated for getting width and height value of main_canvas
-width, height = main_canvas.winfo_width(), main_canvas.winfo_height() 
+main_canvas.bind("<Configure>", resizing)
 
 window.mainloop()
