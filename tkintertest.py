@@ -1,10 +1,11 @@
 import os
 import io
+import urllib.request
 
 import tkinter as tk
-from tkinter import filedialog, messagebox
+from tkinter import filedialog, simpledialog, messagebox
 
-from PIL import ImageTk, Image
+from PIL import ImageTk, Image, UnidentifiedImageError
 from wand.image import Image as wand_img
 
 
@@ -16,6 +17,22 @@ class canvasImage:
     def __init__(self):
         self.image = None   #Image to be manipulated (PIL.Image)
         self.preview_image = None #Image for previewing filter 
+
+def download():
+    url = simpledialog.askstring("URL", "Paste URL here")
+    try:
+        urllib.request.urlretrieve(url, "picture.png")
+        canvasImage.image = Image.open("picture.png")
+        canvasImage.preview_image = Image.open("picture.png")
+        
+        width, height = main_canvas.winfo_width(), main_canvas.winfo_height()
+        main_canvas.image = ImageTk.PhotoImage(canvasImage.preview_image.resize(
+            (int(canvasImage.preview_image.width/1.5), int(canvasImage.preview_image.height/1.5)), 
+            resample=Image.LANCZOS
+            ))
+        main_canvas.create_image(canvas_width/2, canvas_height/2, anchor="center", image=main_canvas.image)
+    except UnidentifiedImageError:
+        print("Invalid image url")
 
 def resizing(e):
     global canvas_width, canvas_height
@@ -110,10 +127,20 @@ main_canvas.grid(row=0, column=5, rowspan=4, columnspan=4, sticky="NESW")
 top_left_frame = tk.Frame(master=window, height=250, width=250, relief="ridge", borderwidth=2)
 top_left_frame.grid(row=0, column=0, rowspan=2, columnspan=4, sticky="NSW", padx=1, pady=1) 
 top_left_frame.grid_propagate(0)
+
+add_image_label = tk.Label(top_left_frame, text="Local Computer : ")
 add_image_btn = tk.Button(top_left_frame, text="Add image", relief="raised", padx=10, command=add_image)
-add_image_btn.grid(row=0, column=0, padx=10, pady=15)
+or_label = tk.Label(top_left_frame, text="OR")
+url_submit_label = tk.Label(top_left_frame, text="URL Download : ")
+url_submit_btn = tk.Button(top_left_frame, text="Download", relief="raised", padx=10, command=download)
 save_image_btn = tk.Button(top_left_frame, text="Save image", relief="raised", padx=10, command=save_image)
-save_image_btn.grid(row=0, column=1, padx=10, pady=15)
+
+url_submit_label.grid(row=0, column=0, padx=20, pady=5)
+url_submit_btn.grid(row=0, column=1, padx=20, pady=5)
+or_label.grid(row=1, column=0, columnspan=2, pady=5)
+add_image_label.grid(row=2, column=0, padx=5, pady=5)
+add_image_btn.grid(row=2, column=1, padx=10, pady=5)
+save_image_btn.grid(row=3, column=1, padx=10, pady=20)
 
 top_right_frame = tk.Frame(master=window, height=250, width=250, relief="ridge", borderwidth=2)
 top_right_frame.grid(row=0, column=9, rowspan=2, columnspan=4, sticky="NES", padx=1, pady=2)
