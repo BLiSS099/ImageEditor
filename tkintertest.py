@@ -5,7 +5,7 @@ import urllib.request
 import tkinter as tk
 from tkinter import filedialog, simpledialog, messagebox
 
-from PIL import ImageTk, Image, UnidentifiedImageError
+from PIL import ImageTk, Image, UnidentifiedImageError, ImageOps
 from wand.image import Image as wand_img
 
 
@@ -54,6 +54,27 @@ def add_image():
         ))
     main_canvas.create_image(canvas_width/2, canvas_height/2, anchor="center", image=main_canvas.image)
 
+#Image transform functions
+def transform(method):
+    canvasImage.preview_image = method(canvasImage.preview_image)
+    canvasImage.image = canvasImage.preview_image
+
+    width, height = main_canvas.winfo_width(), main_canvas.winfo_height()
+    main_canvas.image = ImageTk.PhotoImage(canvasImage.preview_image.resize(
+        (int(canvasImage.preview_image.width/1.5), int(canvasImage.preview_image.height/1.5)), 
+         resample=Image.LANCZOS
+        ))
+    main_canvas.create_image(canvas_width/2, canvas_height/2, anchor="center", image=main_canvas.image)
+
+def flip(img):
+    return ImageOps.flip(img)
+
+def mirror(img):
+    return ImageOps.mirror(img)
+
+def rotate(img):
+    return img.rotate(90)
+    
 #Image effects functions
 def noise(img):
     img.noise("gaussian", attenuate=1.0)
@@ -115,7 +136,6 @@ def save_image():
         os.chdir(os.path.dirname(path.name))
         canvasImage.image.save(path.name)
 
-
 #Tips: Use sticky on grid for resizing
 
 main_canvas = tk.Canvas(master=window, height=250, width=850, relief="ridge", borderwidth=2)
@@ -153,6 +173,16 @@ charcoal_btn.grid(row=2, column=3, padx=5, pady=10)
 
 bot_left_frame = tk.Frame(master=window, height=250, width=250, relief="ridge", borderwidth=2)
 bot_left_frame.grid(row=2,column=0, rowspan=2, columnspan=4, sticky="NSW", padx=1, pady=1)
+bot_left_frame.grid_propagate(0)
+
+transform_label = tk.Label(master=bot_left_frame, text="Transform Image")
+transform_label.grid(row=0, column=0, columnspan=2, padx=5, pady=5, sticky="W")
+flip_btn = tk.Button(master=bot_left_frame, text="Flip", relief="raised", width=7,command=lambda: transform(flip))
+flip_btn.grid(row=1, column=0, padx=10, pady=5)
+mirror_btn = tk.Button(master=bot_left_frame, text="Mirror", relief="raised", width=7, command=lambda: transform(mirror))
+mirror_btn.grid(row=1, column=1, padx=10, pady=5)
+rotate_btn = tk.Button(master=bot_left_frame, text="Rotate", relief="raised", width=7, command=lambda: transform(rotate))
+rotate_btn.grid(row=1, column=2, padx=10, pady=5)
 
 bot_right_frame = tk.Frame(master=window, height=250, width=250, relief="ridge", borderwidth=2)
 bot_right_frame.grid(row=2, column=9, rowspan=2, columnspan=4, sticky="NES", padx=1, pady=1)
