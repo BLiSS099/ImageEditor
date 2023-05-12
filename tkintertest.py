@@ -1,6 +1,6 @@
 import os
 import io
-import urllib.request
+import requests
 
 import tkinter as tk
 from tkinter import filedialog, simpledialog, messagebox
@@ -21,9 +21,9 @@ class canvasImage:
 def download():
     url = simpledialog.askstring("URL", "Paste URL here")
     try:
-        urllib.request.urlretrieve(url, "picture.png")
-        canvasImage.image = Image.open("picture.png")
-        canvasImage.preview_image = Image.open("picture.png")
+        img = requests.get(url)
+        canvasImage.image = Image.open(io.BytesIO(img.content))
+        canvasImage.preview_image = Image.open(io.BytesIO(img.content))
         
         width, height = main_canvas.winfo_width(), main_canvas.winfo_height()
         main_canvas.image = ImageTk.PhotoImage(canvasImage.preview_image.resize(
@@ -73,7 +73,7 @@ def mirror(img):
     return ImageOps.mirror(img)
 
 def rotate(img):
-    return img.rotate(90)
+    return img.rotate(90, expand=True)
     
 #Image effects functions
 def noise(img):
