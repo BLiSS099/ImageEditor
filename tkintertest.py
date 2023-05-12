@@ -116,9 +116,6 @@ def save_image():
         canvasImage.image.save(path.name)
 
 
-window.grid_columnconfigure([5,8], weight=1) #Resize for main_canvas
-window.rowconfigure([0,2], weight=1) #Resize rows
-
 #Tips: Use sticky on grid for resizing
 
 main_canvas = tk.Canvas(master=window, height=250, width=850, relief="ridge", borderwidth=2)
@@ -136,8 +133,8 @@ url_submit_btn = tk.Button(top_left_frame, text="Download", relief="raised", pad
 save_image_btn = tk.Button(top_left_frame, text="Save image", relief="raised", padx=10, command=save_image)
 
 url_submit_label.grid(row=0, column=0, padx=20, pady=5)
-url_submit_btn.grid(row=0, column=1, padx=20, pady=5)
 or_label.grid(row=1, column=0, columnspan=2, pady=5)
+url_submit_btn.grid(row=0, column=1, padx=20, pady=5)
 add_image_label.grid(row=2, column=0, padx=5, pady=5)
 add_image_btn.grid(row=2, column=1, padx=10, pady=5)
 save_image_btn.grid(row=3, column=1, padx=10, pady=20)
@@ -145,11 +142,13 @@ save_image_btn.grid(row=3, column=1, padx=10, pady=20)
 top_right_frame = tk.Frame(master=window, height=250, width=250, relief="ridge", borderwidth=2)
 top_right_frame.grid(row=0, column=9, rowspan=2, columnspan=4, sticky="NES", padx=1, pady=2)
 top_right_frame.grid_propagate(0)
-side_frame_addfilter = tk.Button(top_right_frame, text="Blur", relief="raised", padx=10, command=lambda: add_effects(blur))
-side_frame_addfilter.grid(row=2, column=1, padx=5, pady=10)
+
+blur_btn = tk.Button(top_right_frame, text="Blur", relief="raised", padx=10, command=lambda: add_effects(blur))
 noise_btn = tk.Button(top_right_frame, text="Noise", relief="raised", padx=10, command=lambda: add_effects(noise))
-noise_btn.grid(row=2, column=2, padx=5, pady=10)
 charcoal_btn = tk.Button(top_right_frame, text="Charcoal", relief="raised", padx=10, command=lambda: add_effects(charcoal))
+
+blur_btn.grid(row=2, column=1, padx=5, pady=10)
+noise_btn.grid(row=2, column=2, padx=5, pady=10)
 charcoal_btn.grid(row=2, column=3, padx=5, pady=10)
 
 bot_left_frame = tk.Frame(master=window, height=250, width=250, relief="ridge", borderwidth=2)
@@ -158,14 +157,18 @@ bot_left_frame.grid(row=2,column=0, rowspan=2, columnspan=4, sticky="NSW", padx=
 bot_right_frame = tk.Frame(master=window, height=250, width=250, relief="ridge", borderwidth=2)
 bot_right_frame.grid(row=2, column=9, rowspan=2, columnspan=4, sticky="NES", padx=1, pady=1)
 bot_right_frame.grid_propagate(0)
+
 slider = tk.Scale(master=bot_right_frame, from_=1.0, to_=20.0, resolution=0.1, orient="horizontal", width=10, length=150, label="Slider", variable=var)
 slider.set(6.0)
-slider.grid(row=0, column=0, padx=15)
 apply_filter_btn = tk.Button(master=bot_right_frame, text="Apply filter", relief="raised", command=apply_effects, state="disabled")
-apply_filter_btn.grid(row=1, column=0)
 undo_btn = tk.Button(master=bot_right_frame, text="Undo", relief="raised", command=undo_effects)
+
+apply_filter_btn.grid(row=1, column=0)
+slider.grid(row=0, column=0, padx=15)
 undo_btn.grid(row=1, column=1)
 
 main_canvas.bind("<Configure>", resizing)
+window.grid_columnconfigure([5,8], weight=1) #Resize for main_canvas
+window.rowconfigure([0,2], weight=1) #Resize rows
 
 window.mainloop()
