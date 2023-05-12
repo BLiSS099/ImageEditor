@@ -8,8 +8,6 @@ from tkinter import filedialog, simpledialog, messagebox
 from PIL import ImageTk, Image, UnidentifiedImageError, ImageOps
 from wand.image import Image as wand_img
 
-
-
 window = tk.Tk()
 window.geometry("1280x720")
 var = tk.DoubleVar()
@@ -18,6 +16,20 @@ class canvasImage:
         self.image = None   #Image to be manipulated (PIL.Image)
         self.preview_image = None #Image for previewing filter 
 
+def resizing(e):
+    global canvas_width, canvas_height
+    window.update() #Tkinter root needs to be updated for getting width and height value of main_canvas
+    canvas_width, canvas_height = e.width, e.height
+    print(f"Width: {canvas_width} Height: {canvas_height}")
+
+#Render image on main_canvas
+def render_image(img):
+    main_canvas.image = ImageTk.PhotoImage(img.resize(
+            (int(img.width/1.5), int(img.height/1.5)), 
+            resample=Image.LANCZOS
+            ))
+    main_canvas.create_image(canvas_width/2, canvas_height/2, anchor="center", image=main_canvas.image)
+
 def download():
     url = simpledialog.askstring("URL", "Paste URL here")
     try:
@@ -25,20 +37,10 @@ def download():
         canvasImage.image = Image.open(io.BytesIO(img.content))
         canvasImage.preview_image = Image.open(io.BytesIO(img.content))
         
-        width, height = main_canvas.winfo_width(), main_canvas.winfo_height()
-        main_canvas.image = ImageTk.PhotoImage(canvasImage.preview_image.resize(
-            (int(canvasImage.preview_image.width/1.5), int(canvasImage.preview_image.height/1.5)), 
-            resample=Image.LANCZOS
-            ))
-        main_canvas.create_image(canvas_width/2, canvas_height/2, anchor="center", image=main_canvas.image)
+        render_image(canvasImage.preview_image)
+
     except UnidentifiedImageError:
         print("Invalid image url")
-
-def resizing(e):
-    global canvas_width, canvas_height
-    window.update() #Tkinter root needs to be updated for getting width and height value of main_canvas
-    canvas_width, canvas_height = e.width, e.height
-    print(f"Width: {canvas_width} Height: {canvas_height}")
 
 def add_image():
     path = filedialog.askopenfilename(
@@ -46,25 +48,14 @@ def add_image():
     )
     canvasImage.image = Image.open(path)
     canvasImage.preview_image = Image.open(path)
-    
-    width, height = main_canvas.winfo_width(), main_canvas.winfo_height()
-    main_canvas.image = ImageTk.PhotoImage(canvasImage.preview_image.resize(
-        (int(canvasImage.preview_image.width/1.5), int(canvasImage.preview_image.height/1.5)), 
-         resample=Image.LANCZOS
-        ))
-    main_canvas.create_image(canvas_width/2, canvas_height/2, anchor="center", image=main_canvas.image)
+
+    render_image(canvasImage.preview_image)
 
 #Image transform functions
 def transform(method):
     canvasImage.preview_image = method(canvasImage.preview_image)
     canvasImage.image = canvasImage.preview_image
-
-    width, height = main_canvas.winfo_width(), main_canvas.winfo_height()
-    main_canvas.image = ImageTk.PhotoImage(canvasImage.preview_image.resize(
-        (int(canvasImage.preview_image.width/1.5), int(canvasImage.preview_image.height/1.5)), 
-         resample=Image.LANCZOS
-        ))
-    main_canvas.create_image(canvas_width/2, canvas_height/2, anchor="center", image=main_canvas.image)
+    render_image(canvasImage.preview_image)
 
 def flip(img):
     return ImageOps.flip(img)
@@ -102,11 +93,7 @@ def add_effects(image_effect): #Passing image effects functions as parameters
 
         blob = img.make_blob()
         canvasImage.preview_image = Image.open(io.BytesIO(blob)) 
-        main_canvas.image = ImageTk.PhotoImage(canvasImage.preview_image.resize(
-            (int(canvasImage.preview_image.width/1.5), int(canvasImage.preview_image.height/1.5)), 
-            resample=Image.LANCZOS
-            ))
-        main_canvas.create_image(canvas_width/2, canvas_height/2, anchor="center", image=main_canvas.image)
+        render_image(canvasImage.preview_image)
     apply_filter_btn["state"] = "normal"
 
 def apply_effects():
@@ -116,11 +103,7 @@ def apply_effects():
 
 def undo_effects():
     #Revert filter and set main_canvas.image to original (canvasImage.image)
-    main_canvas.image = ImageTk.PhotoImage(canvasImage.image.resize(
-            (int(canvasImage.preview_image.width/1.5), int(canvasImage.preview_image.height/1.5)), 
-            resample=Image.LANCZOS
-            ))
-    main_canvas.create_image(canvas_width/2, canvas_height/2, anchor="center", image=main_canvas.image)
+    render_image(canvasImage.image)
     apply_filter_btn["state"] = "disabled"
     print("Filter undo-ed!")
 
