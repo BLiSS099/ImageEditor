@@ -117,7 +117,10 @@ def save_image():
         os.chdir(os.path.dirname(path.name))
         canvasImage.image.save(path.name)
 
-#Tips: Use sticky on grid for resizing
+def render_widget():
+    for widget in bot_right_frame.winfo_children():
+        widget.destroy()
+
 
 main_canvas = tk.Canvas(master=window, height=250, width=850, relief="ridge", borderwidth=2)
 main_canvas.grid(row=0, column=5, rowspan=4, columnspan=4, sticky="NESW") 
@@ -143,30 +146,33 @@ save_image_btn.grid(row=3, column=1, padx=10, pady=20)
 top_right_frame = tk.Frame(master=window, height=250, width=250, relief="ridge", borderwidth=2)
 top_right_frame.grid(row=0, column=9, rowspan=2, columnspan=4, sticky="NES", padx=1, pady=2)
 top_right_frame.grid_propagate(0)
+top_right_frame.rowconfigure(1, weight=1) #Allows second row of the frame to stick to bottom
 
 filter_list = {
     'Blur': blur,
     'Noise': noise,
     'Charcoal': charcoal
 } 
-value_inside = tk.StringVar()
+filters_var = tk.StringVar()
 
 filters = ttk.OptionMenu(
     top_right_frame,
-    value_inside,
+    filters_var,
     "Select a filter",
     *filter_list.keys()
 )
 
+filter_label = tk.Label(top_right_frame, text="Filter effects :")
+preview_filter_btn = tk.Button(top_right_frame, text="Preview Filter", relief="raised", command=lambda: add_effects(filter_list[filters_var.get()]))
+apply_filter_btn = tk.Button(top_right_frame, text="Apply filter", relief="raised", command=apply_effects, state="disabled")
+undo_btn = tk.Button(top_right_frame, text="Undo", relief="raised", command=undo_effects)
 
-blur_btn = tk.Button(top_right_frame, text="Blur", relief="raised", padx=10, command=lambda: add_effects(blur))
-noise_btn = tk.Button(top_right_frame, text="Noise", relief="raised", padx=10, command=lambda: add_effects(noise))
-charcoal_btn = tk.Button(top_right_frame, text="Charcoal", relief="raised", padx=10, command=lambda: add_effects(charcoal))
+filter_label.grid(row=0, column=0, padx=5, pady=5)
+filters.grid(row=0, column=1, columnspan=3, padx=5, pady=5)
+preview_filter_btn.grid(row=1, column=0, padx=5, pady=5, sticky="ws")
+apply_filter_btn.grid(row=1, column=1, padx=5, pady=5, sticky="s")
+undo_btn.grid(row=1, column=2, padx=5, pady=5, sticky="es")
 
-filters.grid(row=3, column=0, columnspan=3)
-blur_btn.grid(row=2, column=1, padx=5, pady=10)
-noise_btn.grid(row=2, column=2, padx=5, pady=10)
-charcoal_btn.grid(row=2, column=3, padx=5, pady=10)
 
 bot_left_frame = tk.Frame(master=window, height=250, width=250, relief="ridge", borderwidth=2)
 bot_left_frame.grid(row=2,column=0, rowspan=2, columnspan=4, sticky="NSW", padx=1, pady=1)
@@ -185,16 +191,13 @@ bot_right_frame = tk.Frame(window, height=250, width=250, relief="ridge", border
 bot_right_frame.grid(row=2, column=9, rowspan=2, columnspan=4, sticky="NES", padx=1, pady=1)
 bot_right_frame.grid_propagate(0)
 
+destroy = tk.Button(bot_right_frame, text="Destroy", command=render_widget)
+destroy.grid(row=3, column=0)
+
 slider = tk.Scale(bot_right_frame, from_=1.0, to_=20.0, resolution=0.1, orient="horizontal", width=10, length=150, label="Slider", variable=var)
 slider.set(6.0)
-preview_filter_btn = tk.Button(bot_right_frame, text="Preview Filter", relief="raised", command=lambda: add_effects(filter_list[value_inside.get()]))
-apply_filter_btn = tk.Button(bot_right_frame, text="Apply filter", relief="raised", command=apply_effects, state="disabled")
-undo_btn = tk.Button(bot_right_frame, text="Undo", relief="raised", command=undo_effects)
 
-preview_filter_btn.grid(row=1, column=0)
-apply_filter_btn.grid(row=1, column=1)
 slider.grid(row=0, column=0, columnspan=2, padx=15)
-undo_btn.grid(row=1, column=2)
 
 main_canvas.bind("<Configure>", resizing)
 window.grid_columnconfigure([5,8], weight=1) #Resize for main_canvas
