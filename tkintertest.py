@@ -3,7 +3,7 @@ import io
 import requests
 
 import tkinter as tk
-from tkinter import filedialog, simpledialog, messagebox
+from tkinter import filedialog, simpledialog, messagebox, ttk
 
 from PIL import ImageTk, Image, UnidentifiedImageError, ImageOps
 from wand.image import Image as wand_img
@@ -68,12 +68,10 @@ def rotate(img):
     
 #Image effects functions
 def noise(img):
-    img.noise("gaussian", attenuate=1.0)
-    img.format = 'png'
+    img.noise('gaussian', attenuate=1.0)
 
 def charcoal(img):
     img.charcoal(radius=1.5, sigma=0.5)
-    img.format = 'png'
 
 def blur(img):
     img.blur(radius=var.get(), sigma=3)
@@ -146,10 +144,26 @@ top_right_frame = tk.Frame(master=window, height=250, width=250, relief="ridge",
 top_right_frame.grid(row=0, column=9, rowspan=2, columnspan=4, sticky="NES", padx=1, pady=2)
 top_right_frame.grid_propagate(0)
 
+filter_list = {
+    'Blur': blur,
+    'Noise': noise,
+    'Charcoal': charcoal
+} 
+value_inside = tk.StringVar()
+
+filters = ttk.OptionMenu(
+    top_right_frame,
+    value_inside,
+    "Select a filter",
+    *filter_list.keys()
+)
+
+
 blur_btn = tk.Button(top_right_frame, text="Blur", relief="raised", padx=10, command=lambda: add_effects(blur))
 noise_btn = tk.Button(top_right_frame, text="Noise", relief="raised", padx=10, command=lambda: add_effects(noise))
 charcoal_btn = tk.Button(top_right_frame, text="Charcoal", relief="raised", padx=10, command=lambda: add_effects(charcoal))
 
+filters.grid(row=3, column=0, columnspan=3)
 blur_btn.grid(row=2, column=1, padx=5, pady=10)
 noise_btn.grid(row=2, column=2, padx=5, pady=10)
 charcoal_btn.grid(row=2, column=3, padx=5, pady=10)
@@ -167,18 +181,20 @@ mirror_btn.grid(row=1, column=1, padx=10, pady=5)
 rotate_btn = tk.Button(master=bot_left_frame, text="Rotate", relief="raised", width=7, command=lambda: transform(rotate))
 rotate_btn.grid(row=1, column=2, padx=10, pady=5)
 
-bot_right_frame = tk.Frame(master=window, height=250, width=250, relief="ridge", borderwidth=2)
+bot_right_frame = tk.Frame(window, height=250, width=250, relief="ridge", borderwidth=2)
 bot_right_frame.grid(row=2, column=9, rowspan=2, columnspan=4, sticky="NES", padx=1, pady=1)
 bot_right_frame.grid_propagate(0)
 
-slider = tk.Scale(master=bot_right_frame, from_=1.0, to_=20.0, resolution=0.1, orient="horizontal", width=10, length=150, label="Slider", variable=var)
+slider = tk.Scale(bot_right_frame, from_=1.0, to_=20.0, resolution=0.1, orient="horizontal", width=10, length=150, label="Slider", variable=var)
 slider.set(6.0)
-apply_filter_btn = tk.Button(master=bot_right_frame, text="Apply filter", relief="raised", command=apply_effects, state="disabled")
-undo_btn = tk.Button(master=bot_right_frame, text="Undo", relief="raised", command=undo_effects)
+preview_filter_btn = tk.Button(bot_right_frame, text="Preview Filter", relief="raised", command=lambda: add_effects(filter_list[value_inside.get()]))
+apply_filter_btn = tk.Button(bot_right_frame, text="Apply filter", relief="raised", command=apply_effects, state="disabled")
+undo_btn = tk.Button(bot_right_frame, text="Undo", relief="raised", command=undo_effects)
 
-apply_filter_btn.grid(row=1, column=0)
-slider.grid(row=0, column=0, padx=15)
-undo_btn.grid(row=1, column=1)
+preview_filter_btn.grid(row=1, column=0)
+apply_filter_btn.grid(row=1, column=1)
+slider.grid(row=0, column=0, columnspan=2, padx=15)
+undo_btn.grid(row=1, column=2)
 
 main_canvas.bind("<Configure>", resizing)
 window.grid_columnconfigure([5,8], weight=1) #Resize for main_canvas
