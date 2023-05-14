@@ -271,10 +271,13 @@ def render_widget(key):
     selected_filter() #Run the function and render widgets for selected options
 
 """ Tkinter GUI code """
-main_canvas = tk.Canvas(master=window, height=250, width=850, relief="ridge", borderwidth=2)
+
+#Main canvas for editing image
+main_canvas = tk.Canvas(window, height=250, width=850, relief="ridge", borderwidth=2)
 main_canvas.grid(row=0, column=5, rowspan=4, columnspan=4, sticky="NESW") 
 
-top_left_frame = tk.Frame(master=window, height=250, width=250, relief="ridge", borderwidth=2)
+#Top left frame for adding & downloading image
+top_left_frame = tk.Frame(window, height=250, width=250, relief="ridge", borderwidth=2)
 top_left_frame.grid(row=0, column=0, rowspan=2, columnspan=4, sticky="NSW", padx=1, pady=1) 
 top_left_frame.grid_propagate(0)
 
@@ -292,7 +295,8 @@ add_image_label.grid(row=2, column=0, padx=5, pady=5)
 add_image_btn.grid(row=2, column=1, padx=10, pady=5)
 save_image_btn.grid(row=3, column=1, padx=10, pady=20)
 
-top_right_frame = tk.Frame(master=window, height=250, width=250, relief="ridge", borderwidth=2)
+#Top right frame for selecting image effects & applying it
+top_right_frame = tk.Frame(window, height=250, width=250, relief="ridge", borderwidth=2)
 top_right_frame.grid(row=0, column=9, rowspan=2, columnspan=4, sticky="NES", padx=1, pady=2)
 top_right_frame.grid_propagate(0)
 top_right_frame.rowconfigure(1, weight=1) #Allows second row of the frame to stick to bottom
@@ -316,19 +320,22 @@ preview_effect_btn.grid(row=1, column=0, padx=5, pady=5, sticky="ws")
 apply_effect_btn.grid(row=1, column=1, padx=5, pady=5, sticky="s")
 undo_btn.grid(row=1, column=2, padx=5, pady=5, sticky="es")
 
-bot_left_frame = tk.Frame(master=window, height=250, width=250, relief="ridge", borderwidth=2)
+#Bottom left frame for transforming image (rotate, mirror, etc)
+bot_left_frame = tk.Frame(window, height=250, width=250, relief="ridge", borderwidth=2)
 bot_left_frame.grid(row=2,column=0, rowspan=2, columnspan=4, sticky="NSW", padx=1, pady=1)
 bot_left_frame.grid_propagate(0)
 
-transform_label = tk.Label(master=bot_left_frame, text="Transform Image")
+transform_label = tk.Label(bot_left_frame, text="Transform Image")
+flip_btn = tk.Button(bot_left_frame, text="Flip", relief="raised", width=7,command=lambda: transform(flip))
+mirror_btn = tk.Button(bot_left_frame, text="Mirror", relief="raised", width=7, command=lambda: transform(mirror))
+rotate_btn = tk.Button(bot_left_frame, text="Rotate", relief="raised", width=7, command=lambda: transform(rotate))
+
 transform_label.grid(row=0, column=0, columnspan=2, padx=5, pady=5, sticky="W")
-flip_btn = tk.Button(master=bot_left_frame, text="Flip", relief="raised", width=7,command=lambda: transform(flip))
 flip_btn.grid(row=1, column=0, padx=10, pady=5)
-mirror_btn = tk.Button(master=bot_left_frame, text="Mirror", relief="raised", width=7, command=lambda: transform(mirror))
 mirror_btn.grid(row=1, column=1, padx=10, pady=5)
-rotate_btn = tk.Button(master=bot_left_frame, text="Rotate", relief="raised", width=7, command=lambda: transform(rotate))
 rotate_btn.grid(row=1, column=2, padx=10, pady=5)
 
+#Bottom right frame for image effects' additional options 
 bot_right_frame = tk.Frame(window, height=250, width=250, relief="ridge", borderwidth=2)
 bot_right_frame.grid(row=2, column=9, rowspan=2, columnspan=4, sticky="NES", padx=1, pady=1)
 bot_right_frame.grid_propagate(0)
@@ -336,6 +343,7 @@ bot_right_frame.grid_propagate(0)
 label = tk.Label(bot_right_frame, text="Options Menu")
 label.grid(row=0, column=0, padx=5, pady=5)
 
+#Resizing functions
 main_canvas.bind("<Configure>", resizing)
 window.grid_columnconfigure([5,8], weight=1) #Resize for main_canvas
 window.rowconfigure([0,2], weight=1) #Resize rows
