@@ -10,7 +10,7 @@ from wand.image import Image as wand_img
 
 window = tk.Tk()
 window.geometry("1280x720")
-var = tk.DoubleVar()
+
 class canvasImage:
     def __init__(self):
         self.image = None   #Image to be manipulated (PIL.Image)
@@ -68,13 +68,20 @@ def rotate(img):
     
 #Image effects functions
 def noise(img):
-    img.noise('gaussian', attenuate=1.0)
+    img.noise(options_type.get(), attenuate=options_attenuate.get())
 
 def charcoal(img):
-    img.charcoal(radius=1.5, sigma=0.5)
+    img.charcoal(radius=options_radius.get(), sigma=options_sigma.get())
 
 def blur(img):
-    img.blur(radius=var.get(), sigma=3)
+    img.blur(radius=options_radius.get(), sigma=options_sigma.get())
+
+#Filter list to be displayed in widgets
+filter_list = {
+    'Blur': blur,
+    'Noise': noise,
+    'Charcoal': charcoal
+} 
 
 def add_effects(image_effect): #Passing image effects functions as parameters
     """Challenge1: Due to incompatible variable format of Wand.image and ImageTk.PhotoImage, 
@@ -117,10 +124,90 @@ def save_image():
         os.chdir(os.path.dirname(path.name))
         canvasImage.image.save(path.name)
 
-def render_widget():
+#slider = tk.Scale(bot_right_frame, from_=1.0, to_=20.0, resolution=0.1, orient="horizontal", width=10, length=150, label="Slider", variable=var)
+#slider.set(6.0)
+"""Declaring tkinter variables for accessing widget values in each options"""
+options_radius = tk.DoubleVar() #Radius value (slider widget)
+options_attenuate = tk.DoubleVar() #Attenuate value (slider widget)
+options_sigma = tk.DoubleVar() #Sigma value (slider widget)
+options_type = tk.StringVar() #For accessing selected effect type
+
+def blur_options():
+    title = tk.Label(bot_right_frame, text="Blur Options")
+    radius = tk.Scale(bot_right_frame, from_=1.0, to_=10.0, resolution=0.5, orient="horizontal", 
+                      width=10, length=200,label="Radius", variable=options_radius, relief="ridge", borderwidth=2)
+    radius.set(5.0)
+    sigma = tk.Scale(bot_right_frame, from_=0.0, to_=5.0, resolution=0.1, orient="horizontal", 
+                      width=10, length=200,label="Attenuate", variable=options_sigma, relief="ridge", borderwidth=2)
+    sigma.set(2.0)
+
+    title.grid(row=0, column=0,padx=5, pady=5, sticky="w")
+    radius.grid(row=1, column=0, columnspan=2, padx=5, pady=5)
+    sigma.grid(row=2, column=0, columnspan=2, padx=5, pady=5)
+    return(title, radius, sigma)
+
+# filters = ttk.OptionMenu(
+#     top_right_frame,
+#     filters_var,
+#     "Select a filter",
+#     *filter_list.keys(),
+#     command=render_widget
+# )
+def noise_options():
+    noise_list = [
+        'gaussian',
+        'impulse',
+        'laplacian',
+        'multiplicative_gaussian',
+        'poisson',
+        'random',
+        'uniform'
+    ]
+    noise_type = ttk.OptionMenu(
+        bot_right_frame,
+        options_type,
+        "Select a type",
+        *noise_list
+    )
+    title = tk.Label(bot_right_frame, text="Noise effect options")
+    noise_type_label = tk.Label(bot_right_frame, text="Filter type :")
+    attenuate = tk.Scale(bot_right_frame, from_=0.0, to_=1.0, resolution=0.1, orient="horizontal", 
+                      width=10, length=200,label="Attenuate", variable=options_attenuate, relief="ridge", borderwidth=2)
+    attenuate.set(1.0)
+
+    title.grid(row=0, column=0, padx=5, pady=5, sticky="w")
+    noise_type_label.grid(row=2, column=0, pady=5)
+    noise_type.grid(row=2, column=1, columnspan=2, pady=5, sticky="w")
+    attenuate.grid(row=1, column=0, columnspan=2, padx=5, pady=5)
+    return(title, attenuate, noise_type)
+
+def charcoal_options():
+    title = tk.Label(bot_right_frame, text="Charcoal effect options")
+    radius = tk.Scale(bot_right_frame, from_=1.0, to_=10.0, resolution=0.5, orient="horizontal", 
+                      width=10, length=200,label="Radius", variable=options_radius, relief="ridge", borderwidth=2)
+    radius.set(5.0)
+    sigma = tk.Scale(bot_right_frame, from_=0.0, to_=5.0, resolution=0.1, orient="horizontal", 
+                      width=10, length=200,label="Attenuate", variable=options_sigma, relief="ridge", borderwidth=2)
+    sigma.set(2.0)
+
+    title.grid(row=0, column=0,padx=5, pady=5, sticky="w")
+    radius.grid(row=1, column=0, columnspan=2, padx=5, pady=5)
+    sigma.grid(row=2, column=0, columnspan=2, padx=5, pady=5)
+    return(title, radius, sigma)
+
+widgets = {
+    "Blur": blur_options,
+    "Noise": noise_options,
+    "Charcoal": charcoal_options
+}
+
+def render_widget(key):
     for widget in bot_right_frame.winfo_children():
         widget.destroy()
 
+    selected_filter = widgets[key] #Select function value from widgets dict
+    print(f"Rendering: {selected_filter}")
+    selected_filter() #Run the function and render widgets for selected options
 
 main_canvas = tk.Canvas(master=window, height=250, width=850, relief="ridge", borderwidth=2)
 main_canvas.grid(row=0, column=5, rowspan=4, columnspan=4, sticky="NESW") 
@@ -148,18 +235,14 @@ top_right_frame.grid(row=0, column=9, rowspan=2, columnspan=4, sticky="NES", pad
 top_right_frame.grid_propagate(0)
 top_right_frame.rowconfigure(1, weight=1) #Allows second row of the frame to stick to bottom
 
-filter_list = {
-    'Blur': blur,
-    'Noise': noise,
-    'Charcoal': charcoal
-} 
 filters_var = tk.StringVar()
 
 filters = ttk.OptionMenu(
     top_right_frame,
     filters_var,
     "Select a filter",
-    *filter_list.keys()
+    *filter_list.keys(),
+    command=render_widget
 )
 
 filter_label = tk.Label(top_right_frame, text="Filter effects :")
@@ -191,13 +274,8 @@ bot_right_frame = tk.Frame(window, height=250, width=250, relief="ridge", border
 bot_right_frame.grid(row=2, column=9, rowspan=2, columnspan=4, sticky="NES", padx=1, pady=1)
 bot_right_frame.grid_propagate(0)
 
-destroy = tk.Button(bot_right_frame, text="Destroy", command=render_widget)
-destroy.grid(row=3, column=0)
-
-slider = tk.Scale(bot_right_frame, from_=1.0, to_=20.0, resolution=0.1, orient="horizontal", width=10, length=150, label="Slider", variable=var)
-slider.set(6.0)
-
-slider.grid(row=0, column=0, columnspan=2, padx=15)
+label = tk.Label(bot_right_frame, text="Options Menu")
+label.grid(row=0, column=0, padx=5, pady=5)
 
 main_canvas.bind("<Configure>", resizing)
 window.grid_columnconfigure([5,8], weight=1) #Resize for main_canvas
