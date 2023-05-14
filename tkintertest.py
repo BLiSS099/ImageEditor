@@ -10,6 +10,7 @@ from wand.image import Image as wand_img
 
 window = tk.Tk()
 window.geometry("1280x720")
+window.title("Wand Image Editor")
 
 class canvasImage:
     def __init__(self):
@@ -76,11 +77,20 @@ def charcoal(img):
 def blur(img):
     img.blur(radius=options_radius.get(), sigma=options_sigma.get())
 
+def edge(img):
+    img.transform_colorspace('gray')
+    img.edge(radius=options_radius.get())
+
+def blueshift(img):
+    img.blue_shift(factor=options_factor.get())
+
 #Filter list to be displayed in widgets
 filter_list = {
     'Blur': blur,
     'Noise': noise,
-    'Charcoal': charcoal
+    'Charcoal': charcoal,
+    'Edge': edge,
+    'Blue Shift': blueshift
 } 
 
 def add_effects(image_effect): #Passing image effects functions as parameters
@@ -124,13 +134,14 @@ def save_image():
         os.chdir(os.path.dirname(path.name))
         canvasImage.image.save(path.name)
 
-#slider = tk.Scale(bot_right_frame, from_=1.0, to_=20.0, resolution=0.1, orient="horizontal", width=10, length=150, label="Slider", variable=var)
-#slider.set(6.0)
+
 """Declaring tkinter variables for accessing widget values in each options"""
 options_radius = tk.DoubleVar() #Radius value (slider widget)
 options_attenuate = tk.DoubleVar() #Attenuate value (slider widget)
 options_sigma = tk.DoubleVar() #Sigma value (slider widget)
+options_factor = tk.DoubleVar() #Factor vlaue (slider widget)
 options_type = tk.StringVar() #For accessing selected effect type
+
 
 def blur_options():
     title = tk.Label(bot_right_frame, text="Blur Options")
@@ -146,13 +157,16 @@ def blur_options():
     sigma.grid(row=2, column=0, columnspan=2, padx=5, pady=5)
     return(title, radius, sigma)
 
-# filters = ttk.OptionMenu(
-#     top_right_frame,
-#     filters_var,
-#     "Select a filter",
-#     *filter_list.keys(),
-#     command=render_widget
-# )
+def blueshift_options():
+    title = tk.Label(bot_right_frame, text="Blur Options")
+    factor = tk.Scale(bot_right_frame, from_=1.0, to_=2.0, resolution=0.01, orient="horizontal", 
+                      width=10, length=200,label="Factor", variable=options_factor, relief="ridge", borderwidth=2)
+    factor.set(1.20)
+
+    title.grid(row=0, column=0,padx=5, pady=5, sticky="w")
+    factor.grid(row=1, column=0, columnspan=2, padx=5, pady=5)
+    return(title, factor)
+
 def noise_options():
     noise_list = [
         'gaussian',
@@ -171,23 +185,23 @@ def noise_options():
     )
     title = tk.Label(bot_right_frame, text="Noise effect options")
     noise_type_label = tk.Label(bot_right_frame, text="Filter type :")
-    attenuate = tk.Scale(bot_right_frame, from_=0.0, to_=1.0, resolution=0.1, orient="horizontal", 
+    attenuate = tk.Scale(bot_right_frame, from_=0.0, to_=3.0, resolution=0.1, orient="horizontal", 
                       width=10, length=200,label="Attenuate", variable=options_attenuate, relief="ridge", borderwidth=2)
     attenuate.set(1.0)
 
     title.grid(row=0, column=0, padx=5, pady=5, sticky="w")
-    noise_type_label.grid(row=2, column=0, pady=5)
-    noise_type.grid(row=2, column=1, columnspan=2, pady=5, sticky="w")
-    attenuate.grid(row=1, column=0, columnspan=2, padx=5, pady=5)
+    noise_type_label.grid(row=1, column=0, pady=5)
+    noise_type.grid(row=1, column=1, columnspan=2, pady=5, sticky="w")
+    attenuate.grid(row=2, column=0, columnspan=2, padx=5, pady=5)
     return(title, attenuate, noise_type)
 
 def charcoal_options():
     title = tk.Label(bot_right_frame, text="Charcoal effect options")
-    radius = tk.Scale(bot_right_frame, from_=1.0, to_=10.0, resolution=0.5, orient="horizontal", 
+    radius = tk.Scale(bot_right_frame, from_=1.0, to_=8.0, resolution=0.01, orient="horizontal", 
                       width=10, length=200,label="Radius", variable=options_radius, relief="ridge", borderwidth=2)
-    radius.set(5.0)
+    radius.set(2.0)
     sigma = tk.Scale(bot_right_frame, from_=0.0, to_=5.0, resolution=0.1, orient="horizontal", 
-                      width=10, length=200,label="Attenuate", variable=options_sigma, relief="ridge", borderwidth=2)
+                      width=10, length=200,label="Sigma", variable=options_sigma, relief="ridge", borderwidth=2)
     sigma.set(2.0)
 
     title.grid(row=0, column=0,padx=5, pady=5, sticky="w")
@@ -195,17 +209,29 @@ def charcoal_options():
     sigma.grid(row=2, column=0, columnspan=2, padx=5, pady=5)
     return(title, radius, sigma)
 
-widgets = {
+def edge_options():
+    title = tk.Label(bot_right_frame, text="Edge effect options")
+    radius = tk.Scale(bot_right_frame, from_=1.0, to_=10.0, resolution=1.0, orient="horizontal", 
+                      width=10, length=200,label="Radius", variable=options_radius, relief="ridge", borderwidth=2)
+    radius.set(1.0)
+
+    title.grid(row=0, column=0,padx=5, pady=5, sticky="w")
+    radius.grid(row=1, column=0, columnspan=2, padx=5, pady=5)
+    return(title, radius)
+    
+options_widgets = {
     "Blur": blur_options,
     "Noise": noise_options,
-    "Charcoal": charcoal_options
+    "Charcoal": charcoal_options,
+    "Edge": edge_options,
+    "Blue Shift": blueshift_options
 }
 
 def render_widget(key):
     for widget in bot_right_frame.winfo_children():
         widget.destroy()
 
-    selected_filter = widgets[key] #Select function value from widgets dict
+    selected_filter = options_widgets[key] #Select function value from widgets dict
     print(f"Rendering: {selected_filter}")
     selected_filter() #Run the function and render widgets for selected options
 
@@ -255,7 +281,6 @@ filters.grid(row=0, column=1, columnspan=3, padx=5, pady=5)
 preview_filter_btn.grid(row=1, column=0, padx=5, pady=5, sticky="ws")
 apply_filter_btn.grid(row=1, column=1, padx=5, pady=5, sticky="s")
 undo_btn.grid(row=1, column=2, padx=5, pady=5, sticky="es")
-
 
 bot_left_frame = tk.Frame(master=window, height=250, width=250, relief="ridge", borderwidth=2)
 bot_left_frame.grid(row=2,column=0, rowspan=2, columnspan=4, sticky="NSW", padx=1, pady=1)
