@@ -22,7 +22,8 @@ The following packages need to be installed for the application
     `python 'Image Editor.py' `
 3. Once successful, the following screen should appear
 
-![Image Editor Screenshot](https://github.com/BLiSS099/ImageEditor/assets/123353349/eb20b08d-bf05-4bf0-9d05-cdf0a7460e6f.png)
+![Image Editor Screenshot](https://github.com/BLiSS099/ImageEditor/assets/123353349/d849f800-2121-4488-851d-21665ce05ee9)
+
 
 # Basic functions
 The basic functions in this application includes:
@@ -32,14 +33,21 @@ The basic functions in this application includes:
 
 # Video Demo
 
-https://github.com/BLiSS099/ImageEditor/assets/123353349/a1cc93f1-631e-4d8e-82e9-3afd99bf84b7.mp4
+
+
+https://github.com/BLiSS099/ImageEditor/assets/123353349/50e14d61-533e-4f8b-a16f-ff3d270b3a06.mp4
+
+
 
 # Screenshots
-![Fuji 1](https://github.com/BLiSS099/ImageEditor/assets/123353349/e1f27a51-e6d5-4b2a-9c87-139fb7c61daa)
+![Fuji 1](https://github.com/BLiSS099/ImageEditor/assets/123353349/c20d4b90-8d53-44f9-a60f-821b713c5fae)
+
 
 ### Sepia Tone effect
-![Fuji sepia](https://github.com/BLiSS099/ImageEditor/assets/123353349/75afa95c-9529-4259-b29b-02b847edd6ab)
+![Fuji sepia](https://github.com/BLiSS099/ImageEditor/assets/123353349/a2966288-b406-487f-94c2-35a8c644886e)
+
 
 ### Kuwahara effect
-![fuji kuwahara](https://github.com/BLiSS099/ImageEditor/assets/123353349/da0d63e8-f326-4945-8dbd-b5ba5df25720)
+![fuji kuwahara](https://github.com/BLiSS099/ImageEditor/assets/123353349/81274692-f58a-4533-a418-d73adf3e8c1c)
+
 
